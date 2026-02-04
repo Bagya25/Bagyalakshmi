@@ -1,0 +1,294 @@
+{
+  "name": "Astrology Prediction Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "Astro",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "539f62cf-9e91-4a26-a26c-1269642dccca",
+      "name": "Webhook",
+      "webhookId": "6f14a006-faa7-43ae-aaf6-20291826482a"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields').item.json.body.email }}",
+        "subject": "Your Personalized Astrology Prediction",
+        "message": "=<p>Hello {{ $('Webhook').item.json.body.name }},</p>\n\n<p>Here is your astrology prediction:</p>\n\n<pre style=\"font-family: Arial, sans-serif; line-height: 1.5; background-color: #f4f4f4; padding: 10px; border-radius: 6px;\">\n{{$json[\"prediction\"]}}\n</pre>\n\n<p>Best regards,<br>\nAstrology Prediction Team</p>\n\nBest regards,\nAstrology Prediction Team\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1024,
+        32
+      ],
+      "id": "64d9b790-2390-404b-ab1e-1f23364cc000",
+      "name": "Send a message",
+      "webhookId": "6c1f1a28-982d-49fd-83c1-ecd11f75bd64",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ttJYwJ2ng1Z3BZ2L",
+          "name": "Gmail account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        480,
+        -160
+      ],
+      "id": "89036fc1-7d95-4cab-9e79-f0856a8033ee",
+      "name": "When chat message received",
+      "webhookId": "c38dbb2e-fc4b-45b1-9876-850162241b98"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "={{ $json.body.name }} born on {{ $json.body.dob }} at{{ $json.body.tob  }} in {{ $json.body.pob }} . Gender:{{ $json.body.gender }} , Focus:{{ $json.body.focus }}. Generate a personalized astrology prediction."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        464,
+        32
+      ],
+      "id": "8f5926ac-9bb4-46f5-b4d7-3f3e87029620",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        448,
+        320
+      ],
+      "id": "89e1248c-ba60-456d-9c99-492cb3cc3e26",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "iK9GqlWLHOQZzSA3",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"message\": \"Prediction is generated and emailed successfully!\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1248,
+        32
+      ],
+      "id": "addec018-de8b-4893-a99a-6fe7de179e99",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e7dd6829-2658-4ecb-a8e2-4f44f5892f7e",
+              "name": "body.name",
+              "value": "={{ $json.body.name }}",
+              "type": "string"
+            },
+            {
+              "id": "736b6fdb-9197-4083-8184-25e1c2eae5df",
+              "name": "body.dob",
+              "value": "={{ $json.body.dob }}",
+              "type": "string"
+            },
+            {
+              "id": "6b8be68a-e3b5-4084-8ff7-45c2a6574e97",
+              "name": "body.tob",
+              "value": "={{ $json.body.tob }}",
+              "type": "string"
+            },
+            {
+              "id": "2075feb0-760b-42bc-b4fc-1c0223c90865",
+              "name": "body.pob",
+              "value": "={{ $json.body.pob }}",
+              "type": "string"
+            },
+            {
+              "id": "bad5f899-ea8a-4dec-ac68-ac46e2e4df79",
+              "name": "body.gender",
+              "value": "={{ $json.body.gender }}",
+              "type": "string"
+            },
+            {
+              "id": "94b1f2f7-5417-43e5-873d-7357fe021e02",
+              "name": "body.focus",
+              "value": "={{ $json.body.focus }}",
+              "type": "string"
+            },
+            {
+              "id": "31b98b8d-fbc1-4b68-ba65-57579ddf8904",
+              "name": "body.email",
+              "value": "={{ $json.body.email }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "d7071321-aa4e-49dd-9974-9169e58c54d2",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ffa770f4-eb0a-4f37-a993-fe37ff3bb204",
+              "name": "prediction",
+              "value": "={{$json[\"text\"]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        816,
+        32
+      ],
+      "id": "fcd80a7c-2128-4c51-a0cf-4f1c15ab9b47",
+      "name": "Edit Fields1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timeSavedPerExecution": 10,
+    "errorWorkflow": "tswL3w4v1ZIfm7hIz6Y6h"
+  },
+  "versionId": "da146218-792d-4cf2-ac9a-7167ff3fd81e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "aba9ee3429e3e9691b32ad727a7f0cd015744c44cbb8658fd42b144ffccbe917"
+  },
+  "id": "ji5prbsXj_rb4MDbmmtgr",
+  "tags": []
+}
